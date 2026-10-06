@@ -41,6 +41,20 @@ export const useTemplateStore = create((set, get) => ({
     }
   },
 
+  saveFields: async (token, templateId, fields) => {
+    try {
+      const { data } = await axios.put(
+        `${API}/${templateId}/fields`,
+        { fields },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      set({ currentTemplate: data.template });
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   deleteTemplate: async (token, id) => {
     try {
       await axios.delete(`${API}/${id}`, {

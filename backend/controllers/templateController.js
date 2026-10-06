@@ -1,6 +1,11 @@
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { imageSize } from 'image-size';
 import Template from '../models/Template.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // @desc    Upload Template
 export const uploadTemplate = async (req, res) => {
@@ -48,6 +53,51 @@ export const getTemplates = async (req, res) => {
   }
 };
 
+// @desc    Get Single Template (Editor ke liye)
+export const getTemplateById = async (req, res) => {
+  try {
+    const template = await Template.findById(req.params.id);
+
+    if (!template) {
+      return res.status(404).json({ message: '❌ Template nahi mila' });
+    }
+
+    if (template.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: '❌ Permission nahi hai' });
+    }
+
+    res.json({ template });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Save Fields (Phase 2 ka main kaam!)
+export const saveFields = async (req, res) => {
+  try {
+    const { fields } = req.body;
+    const template = await Template.findById(req.params.id);
+
+    if (!template) {
+      return res.status(404).json({ message: '❌ Template nahi mila' });
+    }
+
+    if (template.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: '❌ Permission nahi hai' });
+    }
+
+    template.fields = fields;
+    await template.save();
+
+    res.json({
+      message: '✅ Fields saved!',
+      template
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Delete Template
 export const deleteTemplate = async (req, res) => {
   try {
@@ -62,7 +112,7 @@ export const deleteTemplate = async (req, res) => {
     }
 
     // Local disk se bhi delete karo
-    const filePath = `.${template.imageUrl}`;
+    const filePath = path.join(__dirname, '..', template.imageUrl);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }

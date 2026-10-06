@@ -10,7 +10,9 @@ const fieldSchema = new mongoose.Schema({
   fontSize: { type: Number, default: 14 },
   fontFamily: { type: String, default: 'Arial' },
   color: { type: String, default: '#000000' },
-  detectedBy: { type: String, default: 'manual' }  // "manual" | "ai"
+  detectedBy: { type: String, default: 'manual' },  // "manual" | "ai"
+  confidence: { type: Number },                     // AI confidence score (0-100)
+  reason: { type: String }                          // AI detection reason
 });
 
 const templateSchema = new mongoose.Schema({

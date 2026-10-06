@@ -1,14 +1,24 @@
 import express from 'express';
 import multer from 'multer';
-import { uploadTemplate, getTemplates, deleteTemplate } from '../controllers/templateController.js';
+import path from 'path';
+import {
+  uploadTemplate,
+  getTemplates,
+  getTemplateById,
+  saveFields,
+  deleteTemplate
+} from '../controllers/templateController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Multer config (temporary local storage → Cloudinary pe bhejenge)
+// Multer config (local storage, uploads/ folder)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
 });
 
 const upload = multer({
@@ -26,6 +36,9 @@ const upload = multer({
 
 router.post('/upload', protect, upload.single('template'), uploadTemplate);
 router.get('/', protect, getTemplates);
+router.get('/:id', protect, getTemplateById);
+router.put('/:id/fields', protect, saveFields);
 router.delete('/:id', protect, deleteTemplate);
+
 
 export default router;

@@ -161,7 +161,11 @@ const Dashboard = () => {
               <div key={template._id} className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden group hover:border-purple-500/50 transition-all">
                 <div className="relative h-48 bg-gray-800 overflow-hidden">
                   <img
-                    src={template.imageUrl}
+                    src={
+                      template.imageUrl.startsWith('http')
+                        ? template.imageUrl
+                        : `http://localhost:5000${template.imageUrl}`
+                    }
                     alt={template.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
